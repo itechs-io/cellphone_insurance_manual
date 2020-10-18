@@ -124,12 +124,37 @@
   "code": 200,
   "data": {
     "checkout": {
-      "due_datetime": ""2020-12-12 13:22:20
+      "due_datetime": "2020-12-12 13:22:20"
     }
   },
   "error": null
 }
 ```
+
+### 결제정보 등록
+청약절차 흐름상 *4-rq. 결제 타입(일시납/월납), 결제 성공일시, 결제금액 전달* 부분에 해당하는 API 입니다.
+[후면 촬영 이미지 및 결제 딥링크 등록] 에서 응답받은 `due_datetime`이 경과했을 경우 `contract_id`를 파기하시기 바랍니다.
+#### 요청
+`POST: /cp-insurance/contract/{contract_id}/checkout/`
+```json
+{
+  "type": "0",
+  "amount": 10000,
+  "datetime": "2020-12-13 09:22:22"
+}
+```
+
+#### 응답
+```json
+{
+  "code": 200,
+  "data": {
+    "result": true
+  },
+  "error": null
+}
+```
+
 ## 기타 API
 청역 진행 및 계약 조회를 위한 API는 아래와 같습니다.
 
