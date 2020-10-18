@@ -75,12 +75,13 @@
 `POST: /cp-insurance/contract/{contract_id}/step-1/`
 ```json
 {
-  "device_info: {
+  "device_info": {
+    "key": "value"
   },
   "device_info_image": "18c5afd5-055e-46f5-a3d9-f4dafe1acd83",
   "location": {
-    “lat”: “33.45048921971038”,
-    “lng”: “126.56945764814947”
+    "lat": "33.45048921971038",
+    "lng": "126.56945764814947"
   }
 }
 ```
@@ -92,7 +93,7 @@
   "data": {
     "ocr": {
       "result": true,
-      "imei": "123456789012345,
+      "imei": "123456789012345",
       "sn": "abcdefg1234567890"
     },
     "insepection": {
