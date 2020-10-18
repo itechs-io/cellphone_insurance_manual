@@ -34,8 +34,10 @@
 <img src="https://github.com/itechs-io/cellphone_insurance_manual/blob/main/%EB%A7%88%EC%9D%B4%EB%B1%85%ED%81%AC%20%EC%B2%AD%EC%95%BD%20%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4_20201019.png?raw=true" width="90%"></img>
 
 ## 청약 API
+청약은 아래 단계로 진행됩니다. 각 단계에선 이전단계의 작업을 수행할 수 없습니다.
 ### 최초 가입정보 등록
 청약절차 흐름상 *1-rq. 가입정보 송신*, *1-rs. 계약 고유키 응답* 부분에 해당하는 API 입니다.
+이 단계가 완료되면 `contract`의 `status`는 `0`(계약 요청)으로 설정됩니다.
 
 #### 요청
 `POST: /cp-insurance/contract/create/`
@@ -70,7 +72,9 @@
 
 ### 캡쳐 이미지 및 부가정보 등록
 청약절차 흐름상 *2-rq. 캡쳐 이미지 및 부가정보 송신*, *2-rs. OCR 성공 여부, 부가정보 일치여부, QR생성키 응답* 부분에 해당하는 API 입니다.
+이 단계가 완료되면 `contract`의 `status`는 `1`(기기정보 등록)으로 설정됩니다.
 이 단계를 진행하지 않고 이탈된 경우 [최초 가입정보 등록] 단계에서 발급 받은 `contract_id`는 반드시 파기하시기 바랍니다.
+
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/step-1/`
 ```json
@@ -107,6 +111,7 @@
 
 ### 전후면 촬영 이미지 및 결제 딥링크 등록
 청약절차 흐름상 *3-rq. 전후면 촬영 이미지, 결제 딥링크 송신*, *3-rs. 결제 deadline timestamp 응답* 부분에 해당하는 API 입니다.
+이 단계가 완료되면 `contract`의 `status`는 `2`(결제 대기)으로 설정됩니다.
 이 단계를 진행하지 않고 이탈된 경우 [최초 가입정보 등록] 단계에서 발급 받은 `contract_id`는 반드시 파기하시기 바랍니다.
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/step-2/`
@@ -133,6 +138,7 @@
 
 ### 결제정보 등록
 청약절차 흐름상 *4-rq. 결제 타입(일시납/월납), 결제 성공일시, 결제금액 전달* 부분에 해당하는 API 입니다.
+이 단계가 완료되면 `contract`의 `status`는 `3`(검수요청)으로 설정됩니다.
 [후면 촬영 이미지 및 결제 딥링크 등록] 에서 응답받은 `due_datetime`이 경과했을 경우 `contract_id`를 파기하시기 바랍니다.
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/checkout/`
@@ -154,6 +160,64 @@
   "error": null
 }
 ```
+
+### 검수결과 webhook
+***이 API는 마이뱅크가 개발하셔야 합니다.***
+#### 검수실패
+*5-rq. 검수실패 사유 및 검수자료 갱신 deadline 전달*, *5-rs. 재검수 딥링크 응답* 단계에 해당하는 부분입니다.
+##### 요청 format
+```json
+{
+  "result": false,
+  "due_datetime": "2020-12-15 13:12:22"
+  "msg": "~~가 잘 보이지 않습니다."
+}
+```
+##### 응답 format
+```json
+{
+  "resinpection_url": "https://..."
+}
+```
+
+#### 검수성공
+*6-rq. 검수완료일자, 보험 게시일자, 만료일자, 다음 보험료 납입기한(월납) 전달*, *6-rs. 가입정보 조회 딥링크 응답.
+##### 요청 format
+###### 일시납
+```json
+{
+  "result": true,
+  "inspection_complete": "2020-12-14 13:22:22",
+  "insurance": {
+    "insurance_start": "2020-12-15",
+    "insurance_end": "2021-12-14"
+  }
+}
+```
+
+###### 월납
+```json
+{
+  "result": true,
+  "inspection_complete": "2020-12-14 13:22:22",
+  "insurance": {
+    "insurance_start": "2020-12-15",
+    "insurance_end": "2021-12-14"
+  },
+  "checkout": {
+    "due_date": "2021-1-31",
+    "amount: 30000
+  }
+}
+```
+##### 응답 format
+```json
+{
+  "contract_url": "https://..."
+}
+```
+
+
 
 ## 기타 API
 청역 진행 및 계약 조회를 위한 API는 아래와 같습니다.
@@ -181,6 +245,17 @@
 청약 과정에서 당사로 전달하는 이미지는 모두 이 API로 업로드한 후 결과로 받은 `image_id`로 지정한다.
 #### 요청
 `POST: /cp-insurance/image/`
+#### 응답
+이미지 url이 반환됩니다. 이 url은 15초간만 유효합니다.
+```json
+{
+  "code": 201,
+  "data": {
+    "url": "https://..."
+  },
+  "error": null
+}
+```
 
 ### 이미지 조회
 회원사가 업로드한 이미지만 조회 가능합니다.
