@@ -16,6 +16,7 @@
 
 ### 인증방식
 요청 헤더에 `X-ITECHS-API-KEY` 항목으로 API Key를 포함해 요청합니다.
+API Key는 별도로 전달됩니다.
 
 ### SSL
 모든 요청/응답은 `HTTPS` 로만 이루어집니다. `HTTP` 요청은 모두 `HTTPS`로 redirect 됩니다.
