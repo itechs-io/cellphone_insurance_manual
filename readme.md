@@ -44,7 +44,7 @@ API Key는 별도로 전달됩니다.
 
 ## 청약절차 흐름
 모든 청약 절차는 [1-rs. 계약 고유키 응답] 단계에서 응답받은 계약 고유키(`contract_id`)를 기준으로 처리됩니다.
-<img src="https://github.com/itechs-io/cellphone_insurance_manual/blob/main/%EB%A7%88%EC%9D%B4%EB%B1%85%ED%81%AC%20%EC%B2%AD%EC%95%BD%20%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4_20201019.png?raw=true" width="90%"></img>
+<img src="https://github.com/itechs-io/cellphone_insurance_manual/blob/main/process.png?raw=true" width="90%"></img>
 
 ## 청약 API
 청약은 아래 단계로 진행됩니다. 각 단계에선 이전단계의 작업을 수행할 수 없습니다.
