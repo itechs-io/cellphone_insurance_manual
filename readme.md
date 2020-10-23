@@ -236,7 +236,6 @@ API Key는 별도로 전달됩니다.
 
 ### 결제취소
 이 단계는 `contract`의 `status`가 `3`, `4`, `5`일 경우만 가능합니다.
-[후면 촬영 이미지 및 결제 딥링크 등록] 에서 응답받은 `due_datetime`이 경과했을 경우 `contract_id`를 파기하시기 바랍니다.
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/checkout/cancel/`
 ```json
@@ -343,7 +342,7 @@ API Key는 별도로 전달됩니다.
       "result": true,
       "msg": null
     }
-  }
+  },
   "msg": "재촬영이 필요합니다."
 }
 ```
@@ -416,7 +415,7 @@ API Key는 별도로 전달됩니다.
 
 
 ## 기타 API
-청역 진행 및 계약 조회를 위한 API는 아래와 같습니다.
+청약 진행 및 계약 조회를 위한 API는 아래와 같습니다.
 
 ### 계약정보 조회 
 청약 진행 상태와 무관하게 계약 현황을 조회합니다.
