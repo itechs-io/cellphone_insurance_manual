@@ -68,16 +68,37 @@ API Key는 별도로 전달됩니다.
 
 ### 가입가능 기기 확인
 `POST: /cp-insurance/candidate/`
+요청한 기기 정보를 확인하고 가입 가능 여부를 응답합니다.
 
 #### 요청
 ```json
+# 아이폰 SE의 경우
 {
   "os": "ios",
-  "model"
+  "device_name": "iPhone8,4"
+}
+
+# 삼성 갤럭시 노트 20의 경우
+{
+  "os": "aos",
+  "device_name": "SM-N981N"
 }
 ```
 
-요청한 기기 정보를 확인하고 가입 가능 여부를 응답합니다.
+#### 응답
+`available`(가입가능여부) 항목을 true/false 로 반환한다.
+```json
+{
+  "code": 200,
+  "data": {
+    "available": true
+  },
+  "error": null
+}
+```
+
+
+
 
 ### 최초 가입정보 등록
 청약절차 흐름상 *1-rq. 가입정보 송신*, *1-rs. 계약 고유키 응답* 부분에 해당하는 API 입니다.
