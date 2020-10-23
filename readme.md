@@ -45,7 +45,8 @@ API Key는 별도로 전달됩니다.
 
 ## 청약절차 흐름
 모든 청약 절차는 [1-rs. 계약 고유키 응답] 단계에서 응답받은 계약 고유키(`contract_id`)를 기준으로 처리됩니다.
-<img src="https://github.com/itechs-io/cellphone_insurance_manual/blob/main/process.png?raw=true" width="90%"></img>
+*재작성중*
+<!-- <img src="https://github.com/itechs-io/cellphone_insurance_manual/blob/main/process.png?raw=true" width="90%"></img> -->
 
 ## 청약 API
 청약은 아래 단계로 진행됩니다. 각 단계에선 이전단계의 작업을 수행할 수 없습니다.
@@ -139,7 +140,6 @@ API Key는 별도로 전달됩니다.
 ### 캡쳐 이미지 및 부가정보 등록
 청약절차 흐름상 *2-rq. 캡쳐 이미지 및 부가정보 송신*, *2-rs. OCR 성공 여부, 부가정보 일치여부, QR생성키 응답* 부분에 해당하는 API 입니다.
 이 단계가 완료되면 `contract`의 `status`는 `1`(기기정보 등록)으로 설정됩니다.
-이 단계를 진행하지 않고 이탈된 경우 [최초 가입정보 등록] 단계에서 발급 받은 `contract_id`는 반드시 파기하시기 바랍니다.
 
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/step-1/`
@@ -178,13 +178,16 @@ API Key는 별도로 전달됩니다.
 ### 전후면 촬영 이미지 및 결제 딥링크 등록
 청약절차 흐름상 *3-rq. 전후면 촬영 이미지, 결제 딥링크 송신*, *3-rs. 결제 deadline timestamp 응답* 부분에 해당하는 API 입니다.
 이 단계가 완료되면 `contract`의 `status`는 `2`(결제 대기)으로 설정됩니다.
-이 단계를 진행하지 않고 이탈된 경우 [최초 가입정보 등록] 단계에서 발급 받은 `contract_id`는 반드시 파기하시기 바랍니다.
 #### 요청
 `POST: /cp-insurance/contract/{contract_id}/step-2/`
 ```json
 {
   "front_image": ["733d49b5-1414-426c-858e-0a52e199dc78", "541fc883-a29a-43ec-97ef-da429c81d10a", "7dac2d4e-792e-4f62-8bb9-3098dfaa02a5"],
-  "back_image": ["2508b0a7-df51-48ab-8499-5363d67e269b", "f5c1b795-862e-4f8e-a98d-21277836d7c2", "3595d0a9-6c3b-4d6a-8ab5-d5f72d6afa79"],
+  "rear_image": ["2508b0a7-df51-48ab-8499-5363d67e269b", "f5c1b795-862e-4f8e-a98d-21277836d7c2", "3595d0a9-6c3b-4d6a-8ab5-d5f72d6afa79"],,
+  "location": {
+    "lat": "33.45048921971038",
+    "lng": "126.56945764814947"
+  },
   "checkout_url": "https://..."
 }
 ```
@@ -323,16 +326,11 @@ API Key는 별도로 전달됩니다.
 
 ###### 재검수요청
 당사에서 이 내용을 webhook으로 전송하고 정상 응답을 수신할 경우 `contract`의 `4`(재검수요청)로 설정됩니다.(고객에게 알림톡이 발송됩니다.)
-이 요청을 수신한 고객사는 검수 결과에 따라 고객이 다시 ㅈ
 ```json
 {
   "result": 1,
   "due_datetime": "2020-12-15 13:12:22",
   "detail": {
-    "device": {
-      "result": true,
-      "msg": null
-    },
     "front": {
       "result": false,
       "msg": "전면 액정이 손가락에 가려져 있습니다"
@@ -345,13 +343,6 @@ API Key는 별도로 전달됩니다.
   "msg": "재촬영이 필요합니다."
 }
 ```
-
-|---|---|
-|0|이미지 확인 결과 인수가 불가능한 경우(이미 파손된 경우 등) 반환되는 값입니다.|
-|1|기기정보 불일치(낮은 확률로 OCR 과정에서 모델명을 잘못 식별했을 경우 발생할 수 있습니다. ex) 발생가능 케이스 => 가입요청 모델명 : SM-N970*N*, 기기정보 이미지상 모델명 : SM-N970*M*, OCR 결과 모델명 : SM-N970*N*)|
-|2|전면 이미지 식별 불가|
-|3|후면 이미지 식별 불가|
-|4|기타. 고객에게 반드시 `msg` 값을 노출시켜 주세요|
 
 ###### 응답
 수신이 성공했을 경우 고객이 검수 데이터를 다시 등록할 수 있는 `url`을 생성하여 보내주십쇼.
@@ -393,6 +384,29 @@ API Key는 별도로 전달됩니다.
 {
   "result": false,
   "error": "tell me something about your gloomy exception..."
+}
+```
+
+### 재검수 이미지 등록
+이 단계가 완료되면 `contract`의 `status`는 `3`(검수요청)으로 설정됩니다.
+#### 요청
+`POST: /cp-insurance/contract/{contract_id}/step-2/update/`
+```json
+{
+  "front_image": ["733d49b5-1414-426c-858e-0a52e199dc78", "541fc883-a29a-43ec-97ef-da429c81d10a", "7dac2d4e-792e-4f62-8bb9-3098dfaa02a5"],
+  "rear_image": ["2508b0a7-df51-48ab-8499-5363d67e269b", "f5c1b795-862e-4f8e-a98d-21277836d7c2", "3595d0a9-6c3b-4d6a-8ab5-d5f72d6afa79"],,
+  "location": {
+    "lat": "33.45048921971038",
+    "lng": "126.56945764814947"
+  }
+}
+```
+
+#### 응답
+```json
+{
+  "code": 200,
+  "error": null
 }
 ```
 
